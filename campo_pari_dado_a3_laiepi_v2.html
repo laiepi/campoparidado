@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Campo Pari — Dado a 3</title>
+  <meta name="description" content="Un dado a 3 mosse: Gentle Soul, Music Thought, You don't know." />
+  <style>
+    :root{--bg:#0b0b0c;--fg:#f4f4f5;--muted:#b6b6bb;--shadow:0 14px 40px rgba(0,0,0,.45);--radius:18px}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:ui-rounded,system-ui,-apple-system,"SF Pro",Arial,sans-serif;background:radial-gradient(1200px 800px at 20% 10%,#141419 0%,var(--bg) 60%) fixed;color:var(--fg);display:flex;min-height:100vh;align-items:center;justify-content:center;padding:24px}
+    .wrap{width:min(560px,100%)}
+    .card{background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.14);border-radius:var(--radius);box-shadow:var(--shadow);padding:22px 18px;position:relative;overflow:hidden}
+    .scribble{position:absolute;inset:-40px -60px auto auto;width:220px;height:220px;opacity:.22;transform:rotate(12deg);pointer-events:none}
+    header{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:14px}
+    h1{font-size:20px;margin:0;letter-spacing:.3px}
+    .sub{margin:6px 0 0;color:var(--muted);font-size:13px;line-height:1.35}
+    .pill{border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:6px 10px;font-size:12px;color:var(--muted);background:rgba(0,0,0,.25);white-space:nowrap}
+    .result{margin-top:14px;border:1px dashed rgba(255,255,255,.22);border-radius:14px;padding:14px;min-height:72px;display:flex;align-items:center;justify-content:center;text-align:center;background:rgba(0,0,0,.18)}
+    .big{font-size:22px;line-height:1.25;letter-spacing:.2px}
+    .muted{color:var(--muted);font-size:14px}
+    .row{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+    button{appearance:none;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);color:var(--fg);padding:12px 14px;border-radius:14px;font-weight:650;cursor:pointer;letter-spacing:.2px;flex:1 1 160px}
+    .mini{font-size:12px;font-weight:600;color:var(--muted);margin-top:12px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+    .toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:rgba(0,0,0,.72);border:1px solid rgba(255,255,255,.16);color:var(--fg);padding:10px 12px;border-radius:999px;font-size:12px;opacity:0;pointer-events:none;transition:opacity .18s ease}
+    .toast.show{opacity:1}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <svg class="scribble" viewBox="0 0 200 200" aria-hidden="true">
+        <path d="M25 110c30-55 62-90 105-86 28 3 48 23 43 54-7 41-47 63-78 75-28 11-62 17-82-5-11-12-10-27 12-38z"
+              fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-dasharray="3 6"/>
+      </svg>
+
+      <header>
+        <div>
+          <h1>Campo Pari — Dado a 3</h1>
+          <p class="sub">Tocca “Lancia”. Esce una mossa. Copia e incolla in WhatsApp (o usa “Condividi”).</p>
+        </div>
+        <div class="pill">made by Laiepi</div>
+      </header>
+
+      <div class="result" id="result" aria-live="polite">
+        <div class="muted">Lancia il dado 🎲</div>
+      </div>
+
+      <div class="row">
+        <button id="roll">🎲 Lancia</button>
+        <button id="copy" disabled>📋 Copia</button>
+        <button id="share" disabled>↗︎ Condividi</button>
+      </div>
+
+      <div class="mini">
+        <span>1 = 🪶 Gentle Soul</span>
+        <span>2 = 🎵 Music Thought</span>
+        <span>3 = ❤️ You don’t know</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">Copiato.</div>
+
+  <script>
+    const moves = {
+      1:"🪶 Gentle Soul",
+      2:"🎵 Music Thought",
+      3:"❤️ You don’t know"
+    };
+    const $ = (id)=>document.getElementById(id);
+    const result=$("result"), btnRoll=$("roll"), btnCopy=$("copy"), btnShare=$("share"), toast=$("toast");
+    let lastText="";
+    function showToast(msg){toast.textContent=msg;toast.classList.add("show");setTimeout(()=>toast.classList.remove("show"),1200);}
+    function roll(){
+      const n=Math.floor(Math.random()*3)+1;
+      lastText=moves[n];
+      result.innerHTML=`<div class="big">${lastText}</div>`;
+      btnCopy.disabled=false; btnShare.disabled=false;
+      if(navigator.vibrate) navigator.vibrate(18);
+    }
+    async function copy(){
+      try{ await navigator.clipboard.writeText(lastText); showToast("Copiato negli appunti ✨"); }
+      catch(e){ window.prompt("Copia questo:", lastText); }
+    }
+    async function share(){
+      const data={text:lastText};
+      if(navigator.share){ try{ await navigator.share(data);}catch(e){} }
+      else{ await copy(); showToast("Incolla in WhatsApp"); }
+    }
+    btnRoll.addEventListener("click",roll);
+    btnCopy.addEventListener("click",copy);
+    btnShare.addEventListener("click",share);
+  </script>
+</body>
+</html>
